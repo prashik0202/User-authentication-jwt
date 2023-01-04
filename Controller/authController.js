@@ -1,24 +1,25 @@
 const User = require('../model/user');
 
-// handle erros: 
+// >>>>>>>>HANDLE ERROR<<<<<<<< 
 const handleError = (err) => {
   console.log(err.message , err.code);
-  let errors = { email : '' , password : ''};
+  let errors = { email : '' , password : ''}; // created obj errors set values to be empty
 
   //validation for unique email address:
-  if(err.code === 11000){
-    errors.email = 'Email is already registered';
-    return errors;
+  if(err.code === 11000){  // 11000 is error code for unique parameter
+    errors.email = 'Email is already registered'; // setting email ele as this message
+    return errors; 
   }
 
   //validation error 
-  if(err.message.includes('user validation failed')){
-    Object.values(err.errors).forEach(({ properties }) => {
-      errors[properties.path] = properties.message;
+  if(err.message.includes('user validation failed')){   // checking that err message includes this line or not
+    Object.values(err.errors).forEach(({ properties }) => { 
+      errors[properties.path] = properties.message;  // we are setting the message to specific element
     })
   }
   return errors;
 }
+//handle error function ends
 
 module.exports.signup_get = (req,res) => {
   res.render('signup');      
