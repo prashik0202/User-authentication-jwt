@@ -6,6 +6,16 @@ const handleError = (err) => {
   console.log(err.message , err.code);
   let errors = { email : '' , password : ''}; // created obj errors set values to be empty
 
+  //incorrect email
+  if(err.message === 'incorrect email'){
+    errors.email = 'email is not correct!';
+  }
+
+  //incorrect password
+  if(err.message === 'incorrect password'){
+    errors.password = 'password is not correct!';
+  }
+
   //validation for unique email address:
   if(err.code === 11000){  // 11000 is error code for unique parameter
     errors.email = 'Email is already registered'; // setting email ele as this message
@@ -53,10 +63,15 @@ module.exports.login_get = (req,res) => {
   res.render('login');      
 }
 
-module.exports.login_post = (req,res) => {
+module.exports.login_post = async(req,res) => {
   const {email , password} = req.body;
-  console.log("email : "+email);
-  console.log("password : "+password);   
-  console.log(req.body);
-  res.send('login');     
+  try{
+    const user = await User.login(email,password);
+    const token = createTocken(user._id);
+    res.cookie('jwt',token,{ httpOnly : true , maxAge : maxAge * 1000});
+    res.status(200).json({user : user._id});
+  }catch(err){
+    const errorstatus = handleError(err);
+    return res.status(400).json({ errorstatus });
+  }    
 }
